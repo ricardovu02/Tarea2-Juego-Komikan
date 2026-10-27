@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "juego/juego.h"
 
 using namespace std;
 
@@ -63,6 +64,13 @@ int main(int argc, char* argv[])
     {
         cout << "Archivo de configuracion: " << argv[3] << endl;
     }
+
+    char tablero[TAM][TAM];
+    inicializarTablero(tablero);
+
+    cout<<endl;
+    cout<< "TABLERO INICIAL: " << endl;
+    mostrarTablero(tablero);
 
     return 0;
 
