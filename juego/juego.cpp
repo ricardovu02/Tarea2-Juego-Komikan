@@ -1,5 +1,6 @@
 #include "juego.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -15,6 +16,13 @@ void inicializarTablero(char tablero[TAM][TAM])
 }
 void mostrarTablero(const char tablero[TAM][TAM])
 {
+    const int ANCHO_CELDA = 7;
+    const int ALTO_CELDA = 4;
+
+    string guiones(ANCHO_CELDA, '-');
+    string espaciosCelda(ANCHO_CELDA, ' ');
+
+
     for (int fila = 0; fila < TAM; fila++)
     {
         for (int columna = 0; columna < TAM; columna++)
@@ -23,23 +31,36 @@ void mostrarTablero(const char tablero[TAM][TAM])
 
             if (columna < TAM - 1)
             {
-                cout << "---";
+                cout << guiones;
             }
         }
         cout << endl;
 
         if (fila< TAM - 1)
         {
-            for (int columna = 0; columna < TAM; columna++)
+            for (int espacio = 0; espacio <  ALTO_CELDA; espacio++)
             {
-                cout << "|";
-
-                if (columna < TAM - 1)
+                if (fila == 1 && espacio == 1)
                 {
-                    cout << "   ";
+                    cout <<"|       |    KOMIKAN    |       |       " << endl;
+
                 }
+                else
+                 {
+                    for (int columna = 0; columna < TAM; columna++)
+                 {
+                 cout << "|";
+
+                  if (columna < TAM - 1)
+                  { 
+                    cout << espaciosCelda;
+                   }
+                 }
             }
-            cout << endl;
+                
+                cout << endl;
+            }
+            
         }
     }
 }
