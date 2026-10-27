@@ -42,22 +42,47 @@ cout << string(9, ' ') << "/  |           |           |  \\" << endl;
 cout << string(6, ' ') << "/     |           |           |     \\" << endl;
 cout << string(3, ' ') << "/        |           |           |        \\" << endl;
 
-
     for (int fila = 0; fila < TAM; fila++)
-    {
+    { string linea((TAM-1)*(ANCHO_CELDA+1)+1,'-');
+    
         for (int columna = 0; columna < TAM; columna++)
         {
-            cout << tablero[fila][columna];
+            int posicion = columna * (ANCHO_CELDA+1);
+          if(tablero[fila][columna] == 'P' || tablero[fila][columna] == 'D')
+          {
+            string ficha;
 
-
-            if (columna < TAM - 1)
+            if (tablero[fila][columna] == 'P')
             {
-                cout << guiones;
+                ficha = "Puma";
             }
+            else
+            {
+                ficha = "Perro";
+            }
+            int inicio = posicion - static_cast<int>(ficha.length()) / 2;
+
+            if (inicio < 0)
+            {
+                inicio=0;
+            }
+
+            if (inicio + ficha.length() > linea.length())
+            {
+                inicio = linea.length() - ficha.length();
+            }
+
+            linea.replace(inicio, ficha.length(), ficha);
+            
+          }
+          else
+          {
+            linea[posicion] = tablero[fila][columna];
+          }
         }
 
 
-        cout << endl;
+        cout << linea << endl;
 
 
         if (fila < TAM - 1)
@@ -76,10 +101,11 @@ cout << string(3, ' ') << "/        |           |           |        \\" << endl
                 }
 
 
+   
                 cout << endl;
             }
         }
-    }
+}
 
 
     cout << endl;

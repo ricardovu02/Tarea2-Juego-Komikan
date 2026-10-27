@@ -68,9 +68,14 @@ int main(int argc, char* argv[])
     char tablero[TAM][TAM];
     inicializarTablero(tablero);
 
+    tablero[2][1] = 'P';
+    tablero[4][4] = 'D';
+
     cout<<endl;
     cout<< "TABLERO INICIAL: " << endl;
     mostrarTablero(tablero);
+    
+
 
     return 0;
 
