@@ -71,10 +71,17 @@ int main(int argc, char* argv[])
     inicializarTablero(tablero);
     inicializarTrono(trono);
 
-    tablero[2][1] = 'P';
-    tablero[4][4] = 'D';
-    trono[1] = 'D';
-    trono[2]= 'P';
+    trono[0] = 'P';
+    tablero[2][0] = 'D';
+    tablero[2][4] = 'D';
+
+    for(int columna = 0; columna< TAM; columna++)
+    {
+        tablero[3][columna] = 'D';
+        tablero[4][columna] = 'D';
+    }
+
+    
 
     cout<<endl;
     cout<< "TABLERO INICIAL: " << endl;
