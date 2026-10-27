@@ -66,14 +66,18 @@ int main(int argc, char* argv[])
     }
 
     char tablero[TAM][TAM];
-    inicializarTablero(tablero);
+    char trono[TAM_TRONO];
 
+    inicializarTablero(tablero);
+    inicializarTrono(trono);
+trono[0] = 'D';
     tablero[2][1] = 'P';
     tablero[4][4] = 'D';
+    tablero[1][1] = 'D';
 
     cout<<endl;
     cout<< "TABLERO INICIAL: " << endl;
-    mostrarTablero(tablero);
+    mostrarTablero(tablero, trono);
     
 
 

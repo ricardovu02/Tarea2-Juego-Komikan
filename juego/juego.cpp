@@ -14,7 +14,16 @@ void inicializarTablero(char tablero[TAM][TAM])
         }
     }
 }
-void mostrarTablero(const char tablero[TAM][TAM])
+
+void inicializarTrono(char trono[TAM_TRONO])
+{
+    for (int i=0; i<TAM_TRONO; i++)
+    {
+        trono[i] = '.';
+    }
+}
+
+void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO])
 {
     const int ANCHO_CELDA = 11;
     const int ALTO_CELDA = 7;
@@ -33,14 +42,25 @@ void mostrarTablero(const char tablero[TAM][TAM])
     };
 
 
-    cout << string(24, ' ') << "T" << endl;
-cout << string(21, ' ') << "/  |  \\" << endl;
-cout << string(18, ' ') << "/     |     \\" << endl;
-cout << string(15, ' ') << "/        |        \\" << endl;
-cout << string(12, ' ') << ".-----------+-----------." << endl;
-cout << string(9, ' ') << "/  |           |           |  \\" << endl;
-cout << string(6, ' ') << "/     |           |           |     \\" << endl;
-cout << string(3, ' ') << "/        |           |           |        \\" << endl;
+    string ficha_arriba = "T";
+    
+    if (trono[0] == 'P')
+    {
+        ficha_arriba = "Puma";
+    }
+    else if (trono[0] == 'D')
+    {
+        ficha_arriba = "Perro";
+    }
+
+    cout << string(24 - ficha_arriba.length() / 2, ' ') << ficha_arriba << endl;
+    cout << string(21, ' ') << "/  |  \\" << endl;
+    cout << string(18, ' ') << "/     |     \\" << endl;
+    cout << string(15, ' ') << "/        |        \\" << endl;
+    cout << string(12, ' ') << ".-----------+-----------." << endl;
+    cout << string(9, ' ') << "/  |           |           |  \\" << endl;
+    cout << string(6, ' ') << "/     |           |           |     \\" << endl;
+    cout << string(3, ' ') << "/        |           |           |        \\" << endl;
 
     for (int fila = 0; fila < TAM; fila++)
     { string linea((TAM-1)*(ANCHO_CELDA+1)+1,'-');
