@@ -70,10 +70,11 @@ int main(int argc, char* argv[])
 
     inicializarTablero(tablero);
     inicializarTrono(trono);
-trono[0] = 'D';
+
     tablero[2][1] = 'P';
     tablero[4][4] = 'D';
-    tablero[1][1] = 'D';
+    trono[1] = 'D';
+    trono[2]= 'P';
 
     cout<<endl;
     cout<< "TABLERO INICIAL: " << endl;

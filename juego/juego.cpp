@@ -57,7 +57,27 @@ void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO])
     cout << string(21, ' ') << "/  |  \\" << endl;
     cout << string(18, ' ') << "/     |     \\" << endl;
     cout << string(15, ' ') << "/        |        \\" << endl;
-    cout << string(12, ' ') << ".-----------+-----------." << endl;
+
+    string lineaTrono = string(12, ' ') + ".-----------+-----------.";
+
+    if (trono[1] == 'P')
+    {
+        lineaTrono.replace(10, 4, "Puma");
+    }
+    else if (trono[1] == 'D')
+    {
+        lineaTrono.replace(10, 5, "Perro");
+    }
+     if (trono[2] == 'P')
+    {
+        lineaTrono.replace(34, 4, "Puma");
+    }
+    else if (trono[2] == 'D')
+    {
+        lineaTrono.replace(34, 5, "Perro");
+    }
+
+    cout << lineaTrono << endl;
     cout << string(9, ' ') << "/  |           |           |  \\" << endl;
     cout << string(6, ' ') << "/     |           |           |     \\" << endl;
     cout << string(3, ' ') << "/        |           |           |        \\" << endl;
