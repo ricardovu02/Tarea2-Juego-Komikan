@@ -239,3 +239,42 @@ bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int or
     return true;
 }
 
+bool movimiento(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int destino)
+{
+    if(!movValido(tablero, trono, origen, destino))
+    {
+        return false;
+    }
+
+    char ficha;
+
+    if (origen < TAM * TAM)
+    {
+        ficha = tablero[origen / TAM][origen % TAM];
+    }
+    else
+    {
+        ficha = trono[origen - TAM * TAM];
+    }
+
+    if (destino < TAM * TAM)
+    {
+        tablero[destino / TAM][destino % TAM] = ficha;
+    }
+    else
+    {
+        trono[destino - TAM*TAM] = ficha;
+    }
+
+    if (origen < TAM*TAM)
+    {
+        tablero[origen / TAM][origen % TAM] = '.';
+    }
+    else
+    {
+        trono[origen - TAM*TAM] = '.';
+    }
+
+    return true;
+
+}
