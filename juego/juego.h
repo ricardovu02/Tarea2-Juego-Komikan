@@ -11,5 +11,6 @@ void inicializarTablero(char tablero[TAM][TAM]);
 void inicializarTrono(char trono[TAM_TRONO]);
 void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO]);
 bool conectadas(int origen, int destino);
+bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int origen, int destino);
 
 #endif

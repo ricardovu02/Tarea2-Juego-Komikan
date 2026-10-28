@@ -199,5 +199,43 @@ bool conectadas(int origen, int destino)
     return (origen == 0 && destino == TRONO_IZQ) || (origen == 1 && destino == TRONO_IZQ) || (origen == 2 && destino == TRONO_SUP) || (origen == 3 || destino == TRONO_DER) || (origen == 4 && destino == TRONO_DER) || (origen == TRONO_SUP && destino == TRONO_IZQ) || (origen == TRONO_SUP && destino == TRONO_DER) || (origen == TRONO_IZQ && destino == TRONO_DER);
 }
 
+bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int origen, int destino)
+{
+    if (!conectadas(origen, destino))
+    {
+        return false;
+    }
 
+    char fichaOrigen;
+    char fichaDestino;
+
+    if (origen < TAM * TAM)
+    {
+        fichaOrigen = tablero[origen / TAM][origen % TAM];
+    }
+    else 
+    {
+        fichaOrigen = trono[origen- TAM*TAM];
+    }
+
+    if (destino< TAM*TAM)
+    {
+        fichaDestino= tablero[destino/ TAM][destino % TAM];
+    }
+    else
+    {
+        fichaDestino = trono[destino - TAM*TAM];
+    }
+
+    if (fichaOrigen != 'P' && fichaOrigen != 'D')
+    {
+        return false;
+    }
+    if (fichaDestino != '.')
+    {
+        return false;
+    }
+
+    return true;
+}
 
