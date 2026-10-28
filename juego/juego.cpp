@@ -145,7 +145,7 @@ void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO])
                 cout << endl;
             }
         }
-}
+   }
 
 
     cout << endl;
@@ -156,5 +156,48 @@ void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO])
         cout << "   " << logo[i] << endl;
     }
 }
+
+bool conectadas(int origen, int destino)
+{
+    const int POS_TABLERO = TAM * TAM;
+    const int TOTAL_POS = POS_TABLERO + TAM_TRONO;
+
+    if (origen < 0 || origen >= TOTAL_POS || destino < 0 || destino >= TOTAL_POS || origen == destino)
+    {
+        return false;
+    }
+    
+    if (origen < POS_TABLERO && destino < POS_TABLERO)
+    {
+        int fila1 = origen / TAM;
+        int columna1 = origen % TAM;
+
+        int fila2 = destino / TAM;
+        int columna2 = destino % TAM;
+    
+     if (fila1 == fila2 && (columna1 + 1 == columna2 || columna2 + 1 == columna1))
+     {
+         return true;
+     }
+
+     if (columna1 == columna2 && (fila1 + 1 == fila2 || fila2 + 1 == fila1))
+     {
+            return true;
+     }
+
+        return false;
+
+    }
+
+    if (origen > destino)
+    {
+        int auxiliar = origen;
+        origen = destino;
+        destino =auxiliar;
+    }
+
+    return (origen == 0 && destino == TRONO_IZQ) || (origen == 1 && destino == TRONO_IZQ) || (origen == 2 && destino == TRONO_SUP) || (origen == 3 || destino == TRONO_DER) || (origen == 4 && destino == TRONO_DER) || (origen == TRONO_SUP && destino == TRONO_IZQ) || (origen == TRONO_SUP && destino == TRONO_DER) || (origen == TRONO_IZQ && destino == TRONO_DER);
+}
+
 
 
