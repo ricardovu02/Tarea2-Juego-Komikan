@@ -1,0 +1,18 @@
+retardo_min 50
+retardo_max 300
+semilla 1234
+
+puma tablero 0 2 
+
+perro tablero 2 0
+perro tablero 2 4
+perro trono 0
+perro tablero 2 3 
+perro tablero 3 2
+perro tablero 3 3
+perro tablero 3 4
+perro tablero 4 0
+perro tablero 4 1
+perro tablero 4 2
+perro tablero 4 3
+perro tablero 4 4
