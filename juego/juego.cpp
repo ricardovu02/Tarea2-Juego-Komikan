@@ -278,3 +278,49 @@ bool movimiento(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int d
     return true;
 
 }
+
+bool captura(char tablero[TAM][TAM], int origen, int destino)
+{
+    if (origen < 0 || origen >= TAM * TAM || destino < 0 || destino >= TAM * TAM )
+    {
+        return false;
+    }
+
+    int fila1 = origen / TAM;
+    int columna1 = origen % TAM;
+
+    int fila2 = destino / TAM;
+    int columna2 = destino % TAM;
+
+    bool horizontal = fila1 == fila2 && (columna2 == columna1 + 2 || columna2 || columna1 -2);
+    bool vertical = columna1 == columna2 && (fila2 == fila1 + 2 || fila2 == fila1 - 2);
+
+    if (!horizontal && !vertical)
+    {
+        return false;
+    }
+
+    int medio = (origen + destino) /2;
+
+    if (!conectadas(origen, medio) || !conectadas(medio, destino))
+    {
+        return false;
+    }
+
+    int filaMedio = medio / TAM;
+    int columnaMedio = medio % TAM;
+
+    if (tablero[fila1][columna1] != 'P' || tablero[filaMedio][columnaMedio] != 'D' || tablero[fila2][columna2] != '.')
+    {
+        return false;
+    }
+
+    tablero[fila1][columna1] = '.'; 
+    tablero[filaMedio][columnaMedio] = '.';
+    tablero[fila2][columna2] = 'P';
+
+    return true;
+
+
+    
+}

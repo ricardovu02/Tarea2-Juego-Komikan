@@ -13,5 +13,5 @@ void mostrarTablero(const char tablero[TAM][TAM], const char trono[TAM_TRONO]);
 bool conectadas(int origen, int destino);
 bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int origen, int destino);
 bool movimiento(char tablero[TAM][TAM],  char trono[TAM_TRONO], int origen, int destino);
-
+bool captura(char tablero[TAM][TAM], int origen, int destino);
 #endif
