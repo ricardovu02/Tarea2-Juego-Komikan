@@ -279,48 +279,118 @@ bool movimiento(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int d
 
 }
 
-bool captura(char tablero[TAM][TAM], int origen, int destino)
+bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int destino)
 {
-    if (origen < 0 || origen >= TAM * TAM || destino < 0 || destino >= TAM * TAM )
+    const int Total = TAM * TAM + TAM_TRONO;
+    if (origen < 0 || origen >= Total || destino < 0 || destino >= Total)
     {
         return false;
     }
 
-    int fila1 = origen / TAM;
-    int columna1 = origen % TAM;
+    int medio = -1;
 
-    int fila2 = destino / TAM;
-    int columna2 = destino % TAM;
+    if (origen < TAM * TAM && destino < TAM * TAM)
+    {
+        int fila1 = origen / TAM;
+        int columna1 = origen % TAM;
 
-    bool horizontal = fila1 == fila2 && (columna2 == columna1 + 2 || columna2 || columna1 -2);
-    bool vertical = columna1 == columna2 && (fila2 == fila1 + 2 || fila2 == fila1 - 2);
+        int fila2 = destino / TAM;
+        int columna2 = destino % TAM;
 
-    if (!horizontal && !vertical)
+        bool horizontal = fila1 == fila2 && (columna2 == columna1 + 2 || columna2 || columna1 -2);
+        bool vertical = columna1 == columna2 && (fila2 == fila1 + 2 || fila2 == fila1 - 2);
+
+         if (horizontal || vertical)
+        {
+         medio = (origen + destino) / 2;
+        }
+    }
+
+    else
+    {
+        int menor= origen;
+        int mayor = destino;
+
+        if (menor > mayor)
+        {
+            int aux = menor;
+            menor = mayor;
+            mayor = aux;
+        }
+
+        if (menor == 0 && mayor == TRONO_SUP)
+        {
+            medio = TRONO_IZQ;
+        }
+        else if (menor == 4 && mayor == TRONO_SUP)
+        {
+            medio = TRONO_DER;
+        }
+        else if (menor == 6 && mayor == TRONO_IZQ)
+        {
+            medio = 1;
+        }
+        else if (menor == 7 && mayor == TRONO_SUP)
+        {
+            medio = 2;
+        }
+        else if (menor == 8 && mayor == TRONO_DER)
+        {
+            medio = 3;
+        }
+    }
+
+    if (medio == -1)
     {
         return false;
     }
 
-    int medio = (origen + destino) /2;
-
-    if (!conectadas(origen, medio) || !conectadas(medio, destino))
+    if (!conectadas( origen, medio) || !conectadas(medio, destino))
     {
         return false;
     }
 
-    int filaMedio = medio / TAM;
-    int columnaMedio = medio % TAM;
+    int pos[3] = {origen, medio, destino};
+    char fichas[3];
 
-    if (tablero[fila1][columna1] != 'P' || tablero[filaMedio][columnaMedio] != 'D' || tablero[fila2][columna2] != '.')
+    for (int i=0; i<3; i++)
+    {
+        int posicion = pos[i];
+
+        if (posicion < TAM * TAM)
+        {
+            fichas[i] = tablero[posicion / TAM][posicion % TAM];
+        }
+        else
+        {
+            fichas[i] = trono[posicion - TAM * TAM];
+        }
+    }
+
+    if (fichas[0] != 'P' || fichas[1] != 'D' || fichas[2] != '.')
     {
         return false;
     }
 
-    tablero[fila1][columna1] = '.'; 
-    tablero[filaMedio][columnaMedio] = '.';
-    tablero[fila2][columna2] = 'P';
+    for (int i = 0; i < 3; i++)
+    {
+        int posicion = pos[i];
+        char ficha = '.';
+
+        if (i == 2)
+        {
+            ficha = 'P';
+        }
+
+        if (posicion< TAM * TAM)
+        {
+            tablero[posicion / TAM][posicion % TAM] = ficha;
+        }
+        else
+        {
+            trono[posicion - TAM*TAM] = ficha;
+        }
+    }
 
     return true;
-
-
-    
 }
