@@ -1,4 +1,7 @@
 #include "partida.h"
+#include <iostream>
+
+using namespace std;
 
 bool iniciarPartida(Partida &p)
 {
@@ -19,4 +22,16 @@ bool iniciarPartida(Partida &p)
 void cerrarPartida(Partida &p)
 {
     pthread_mutex_destroy(&p.mutex);
+}
+
+void* threadPuma(void* dato)
+{
+    Partida *p = (Partida *)dato;
+    pthread_mutex_lock(&p->mutex);
+
+    cout << "Thread del Puma iniciado" << endl;
+    cout << "Capturas actuales: " << p->capturas << endl;
+
+    pthread_mutex_unlock(&p->mutex);
+    return nullptr;
 }

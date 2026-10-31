@@ -16,5 +16,6 @@ struct Partida
 
 bool iniciarPartida(Partida &p);
 void cerrarPartida(Partida &p);
+void* threadPuma(void* dato);
 
 #endif

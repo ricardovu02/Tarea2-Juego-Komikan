@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
     cout<< "TABLERO INICIAL: " << endl;
     
     mostrarTablero(tablero, trono);
-//hola persona que revisa, saludos a su persona
+
     return 0;
 
 }
