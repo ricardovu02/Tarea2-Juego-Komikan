@@ -15,5 +15,6 @@ bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int or
 bool movimiento(char tablero[TAM][TAM],  char trono[TAM_TRONO], int origen, int destino);
 bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int destino, int &capturas);
 bool ganaPuma(int capturas);
+bool gananPerros(const char tablero[TAM][TAM], const char trono[TAM_TRONO]);
 
 #endif

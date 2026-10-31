@@ -241,7 +241,13 @@ int main(int argc, char* argv[])
     
     mostrarTablero(tablero, trono);
 
-    
+    char prueba[TAM][TAM];
+char tronoPrueba[TAM_TRONO];
+
+
+inicializarTablero(prueba);
+inicializarTrono(tronoPrueba);
+
     return 0;
 
 }

@@ -196,7 +196,7 @@ bool conectadas(int origen, int destino)
         destino =auxiliar;
     }
 
-    return (origen == 0 && destino == TRONO_IZQ) || (origen == 1 && destino == TRONO_IZQ) || (origen == 2 && destino == TRONO_SUP) || (origen == 3 || destino == TRONO_DER) || (origen == 4 && destino == TRONO_DER) || (origen == TRONO_SUP && destino == TRONO_IZQ) || (origen == TRONO_SUP && destino == TRONO_DER) || (origen == TRONO_IZQ && destino == TRONO_DER);
+    return (origen == 0 && destino == TRONO_IZQ) || (origen == 1 && destino == TRONO_IZQ) || (origen == 2 && destino == TRONO_SUP) || (origen == 3 && destino == TRONO_DER) || (origen == 4 && destino == TRONO_DER) || (origen == TRONO_SUP && destino == TRONO_IZQ) || (origen == TRONO_SUP && destino == TRONO_DER) || (origen == TRONO_IZQ && destino == TRONO_DER);
 }
 
 bool movValido(const char tablero[TAM][TAM], const char trono[TAM_TRONO], int origen, int destino)
@@ -404,6 +404,69 @@ bool ganaPuma(int capturas)
     }
 
     return false;
+}
+
+bool gananPerros(const char tablero[TAM][TAM], const char trono[TAM_TRONO])
+{
+    int puma = -1;
+    int total = TAM * TAM + TAM_TRONO;
+
+    for(int i = 0; i < total; i++)
+    {
+        if (i < TAM * TAM)
+        {
+            if (tablero[i / TAM][i % TAM] == 'P')
+            {
+                puma = i;
+            }
+        }
+        else
+        {
+            if (trono[i - TAM * TAM] == 'P')
+            {
+                puma = i;
+            }
+        }
+    }
+
+    if (puma == -1)
+    {
+        return false;
+    }
+
+    for (int destino = 0; destino < total; destino++)
+    {
+        if(movValido(tablero, trono, puma, destino))
+        {
+            return false;
+        }
+
+        char copia[TAM][TAM];
+        char copiaTrono[TAM_TRONO];
+
+        for (int fila = 0; fila < TAM; fila++)
+        {
+            for (int columna = 0; columna < TAM; columna++)
+            {
+                copia[fila][columna] = tablero[fila][columna];
+            }
+        }
+
+        for (int i = 0; i < TAM_TRONO; i++)
+        {
+            copiaTrono[i] = trono[i];
+
+        }
+
+        int capturasPrueba = 0;
+
+        if (captura(copia, copiaTrono, puma, destino, capturasPrueba))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
