@@ -279,7 +279,7 @@ bool movimiento(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int d
 
 }
 
-bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int destino)
+bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int destino, int &capturas)
 {
     const int Total = TAM * TAM + TAM_TRONO;
     if (origen < 0 || origen >= Total || destino < 0 || destino >= Total)
@@ -391,6 +391,19 @@ bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int dest
             trono[posicion - TAM*TAM] = ficha;
         }
     }
+    capturas++;
 
     return true;
 }
+
+bool ganaPuma(int capturas)
+{
+    if (capturas >= 6)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
