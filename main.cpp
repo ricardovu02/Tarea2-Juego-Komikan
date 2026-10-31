@@ -2,7 +2,9 @@
 #include <string>
 #include <sstream>
 #include "juego/juego.h"
+#include "partida/partida.h"
 #include <fstream>
+
 
 using namespace std;
 
@@ -240,14 +242,7 @@ int main(int argc, char* argv[])
     cout<< "TABLERO INICIAL: " << endl;
     
     mostrarTablero(tablero, trono);
-
-    char prueba[TAM][TAM];
-char tronoPrueba[TAM_TRONO];
-
-
-inicializarTablero(prueba);
-inicializarTrono(tronoPrueba);
-
+//hola persona que revisa, saludos a su persona
     return 0;
 
 }
