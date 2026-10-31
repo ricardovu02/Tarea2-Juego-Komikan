@@ -3,12 +3,15 @@
 #include <pthread.h>
 #include "../juego/juego.h"
 
+const int cantidad_perros = 12;
 struct Partida
 {
     char tablero[TAM][TAM];
     char trono[TAM_TRONO];
     int capturas;
     bool terminada;
+    int posPuma;
+    int posPerros[cantidad_perros];
 
     pthread_mutex_t mutex;
 
@@ -17,5 +20,6 @@ struct Partida
 bool iniciarPartida(Partida &p);
 void cerrarPartida(Partida &p);
 void* threadPuma(void* dato);
+bool ubiFichas(Partida &p);
 
 #endif

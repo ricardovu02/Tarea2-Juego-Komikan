@@ -242,7 +242,6 @@ int main(int argc, char* argv[])
     cout<< "TABLERO INICIAL: " << endl;
     
     mostrarTablero(tablero, trono);
-
     return 0;
 
 }
