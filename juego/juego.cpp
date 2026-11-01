@@ -297,7 +297,7 @@ bool captura(char tablero[TAM][TAM], char trono[TAM_TRONO], int origen, int dest
         int fila2 = destino / TAM;
         int columna2 = destino % TAM;
 
-        bool horizontal = fila1 == fila2 && (columna2 == columna1 + 2 || columna2 || columna1 -2);
+        bool horizontal = fila1 == fila2 && (columna2 == columna1 + 2 || columna2 == columna1 -2);
         bool vertical = columna1 == columna2 && (fila2 == fila1 + 2 || fila2 == fila1 - 2);
 
          if (horizontal || vertical)
