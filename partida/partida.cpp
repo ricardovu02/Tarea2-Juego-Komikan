@@ -25,6 +25,52 @@ bool iniciarPartida(Partida &p)
 
 }
 
+bool ubicacionFichas(Partida &p)
+{
+    int pumas = 0;
+    int perros = 0;
+
+    for(int pos = 0; pos < TAM * TAM + TAM_TRONO; pos++)
+    {
+        char ficha;
+
+        if (pos < TAM * TAM)
+        {
+            ficha = p.tablero[pos / TAM][pos % TAM];
+        }
+        else
+        {
+            ficha = p.trono[pos - TAM * TAM];
+
+        }
+        if (ficha == 'P')
+        {
+            p.posPuma = pos;
+            pumas++;
+        }
+        else if (ficha == 'D')
+        {
+            if (perros < cant_Perros)
+            {
+                p.posPerros[perros] = pos;
+            }
+
+            perros++;
+        }
+    }
+    if (pumas != 1)
+    {
+        cout << "Cantidad de Pumas: " << pumas <<endl;
+        cout << "Numero invalido. Se requiere exactamente 1 Puma." << endl;
+    }
+    if (perros != cant_Perros)
+    {
+        cout << "Cantidad de Perros: " << perros << endl;
+        cout << "Numero invalido. Se requieren exactamente " << cant_Perros << " Perros." << endl;
+    }
+    return pumas == 1 && perros == cant_Perros;
+}
+
 void cerrarPartida(Partida &p)
 {
     pthread_mutex_destroy(&p.mutex);

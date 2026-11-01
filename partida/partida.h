@@ -11,7 +11,7 @@ struct Partida
     char trono[TAM_TRONO];
     int capturas;
     bool terminada;
-    
+
     int posPuma;
     int posPerros[cant_Perros];
 
@@ -20,6 +20,7 @@ struct Partida
 };
 
 bool iniciarPartida(Partida &p);
+bool ubicacionFichas(Partida &p);
 void cerrarPartida(Partida &p);
 void* threadPuma(void* dato);
 
