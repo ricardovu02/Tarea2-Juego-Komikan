@@ -10,6 +10,12 @@ bool iniciarPartida(Partida &p)
 
     p.capturas = 0;
     p.terminada = false;
+    p.posPuma = -1;
+    
+    for (int i = 0; i < cant_Perros; i++)
+    {
+        p.posPerros[i] = -1;
+    }
 
     if(pthread_mutex_init(&p.mutex, nullptr) != 0)
     {
