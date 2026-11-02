@@ -87,3 +87,53 @@ void* threadPuma(void* dato)
     pthread_mutex_unlock(&p->mutex);
     return nullptr;
 }
+
+struct DatoPerro
+{
+    Partida *partida;
+    int id;
+};
+
+void* threadPerro(void* dato)
+{
+    DatoPerro *info = (DatoPerro *)dato;
+    Partida *p = info->partida;
+
+    pthread_mutex_lock(&p->mutex);
+
+    cout << "Perro " << info->id + 1 << " en posicion: " << p->posPerros[info->id] << endl;
+
+    pthread_mutex_unlock(&p->mutex);
+
+    return nullptr;
+}
+
+bool threadsPerros(Partida &p)
+{
+    pthread_t hilos[cant_Perros];
+    DatoPerro datos[cant_Perros];
+    int creados = 0;
+
+    for (int i = 0; i < cant_Perros; i++)
+    {
+        datos[i].partida = &p;
+        datos[i].id = i;
+
+        if (pthread_create(&hilos[i], nullptr, threadPerro, &datos[i]) != 0)
+        {
+            cout << "Error al crear el hilo del Perro " << i + 1 << endl;
+            break;
+        }
+
+        creados++;
+
+    }
+
+    for (int i = 0; i < creados; i++)
+    {
+        pthread_join(hilos[i], nullptr);
+    }
+
+    return creados == cant_Perros;
+
+}
