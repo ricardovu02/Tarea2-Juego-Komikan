@@ -14,10 +14,17 @@ struct Partida
     int retardoMax;
     unsigned int semilla;
     int intentos;
+    int mesa;
+    bool arbitroListo;
+    bool capturaPendiente;
+    int perroCapturado;
+    int origenCaptura;
+    int destinoCaptura;
     int posPuma;
     int posPerros[cantidad_perros];
 
     pthread_mutex_t mutex;
+    pthread_cond_t avisoArbitro;
 
 };
 

@@ -1,4 +1,5 @@
 #include "partida.h"
+#include "../arbitro/arbitro.h"
 #include <iostream>
 #include <cstdlib>
 #include <unistd.h>
@@ -17,6 +18,12 @@ bool iniciarPartida(Partida &p)
     p.semilla = 1;
     p.posPuma = -1;
     p.intentos = 0;
+    p.mesa = 1;
+    p.arbitroListo = false;
+    p.capturaPendiente = false;
+    p.perroCapturado = -1;
+    p.origenCaptura = -1;
+    p.destinoCaptura = -1;
     
     for (int i = 0; i < cantidad_perros; i++)
     {
@@ -32,6 +39,11 @@ bool iniciarPartida(Partida &p)
 
     if(pthread_mutex_init(&p.mutex, nullptr) != 0)
     {
+        return false;
+    }
+    if (pthread_cond_init(&p.avisoArbitro, nullptr) != 0)
+    {
+        pthread_mutex_destroy(&p.mutex);
         return false;
     }
     return true;
@@ -86,6 +98,7 @@ bool ubicacionFichas(Partida &p)
 
 void cerrarPartida(Partida &p)
 {
+    pthread_cond_destroy(&p.avisoArbitro);
     pthread_mutex_destroy(&p.mutex);
 }
 
@@ -96,26 +109,6 @@ int pausa(Partida &p, unsigned int &estado)
 
     usleep(tiempo * 1000);
     return tiempo;
-}
-
-void revisarFin(Partida &p)
-{
-    if (ganaPuma(p.capturas))
-    {
-        p.terminada = true;
-        cout << "Gana el Puma con " << p.capturas << " capturas" << endl;
-    }
-
-    else if (gananPerros(p.tablero, p.trono))
-    {
-        p.terminada = true;
-        cout << "Ganan los Perros: Puma inmovilizado" << endl;
-    }
-    else if (p.intentos >= 400)
-    {
-        p.terminada = true;
-        cout << "Prueba detenida tras 400 intentos, sin ganador" << endl;
-    }
 }
 
 void moverPerro(Partida &p, int id, unsigned int &estado)
@@ -141,7 +134,7 @@ void moverPerro(Partida &p, int id, unsigned int &estado)
         {
             p.posPerros[id] = destino;
 
-            cout << "Perro " << id + 1 << "; " << origen << " -> " << destino << endl;
+            registrarMov(p, "Perro", id + 1, origen, destino);
         }
     }
 }
@@ -210,8 +203,13 @@ void moverPuma(Partida &p, unsigned int &estado)
                 {
                     p.posPerros[i] = -1;
 
-                    cout << "Puma captura al Perro " << i + 1 << ": " << origen << " -> " << destino << " (capturas: " << p.capturas << ")" << endl;
+                    p.perroCapturado = i + 1;
+                    p.origenCaptura =origen;
+                    p.destinoCaptura= destino;
+                    p.capturaPendiente = true;
 
+                    pthread_cond_broadcast(&p.avisoArbitro);
+                    
                     break;
                 }
             }
@@ -230,11 +228,12 @@ void moverPuma(Partida &p, unsigned int &estado)
     if (cantidad >0)
     {
         int destino = destinos[rand_r(&estado) % cantidad];
+
         if (movimiento(p.tablero, p.trono, origen, destino))
         {
             p.posPuma = destino;
 
-            cout << "Puma: " << origen << " -> " << destino << endl;
+            registrarMov(p, "Puma", 0, origen, destino);
         }
     }
 }
