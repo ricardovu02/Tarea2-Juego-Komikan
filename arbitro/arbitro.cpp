@@ -75,7 +75,12 @@ void registrarMov(const Partida &p, const char *ficha, int numero, int origen, i
 
     pthread_mutex_lock(&mutexConsola);
 
-    if (ganaPuma(p->capturas))
+    if (p->interrumpida)
+    {
+        cout << "MEsa " << p->mesa << " | Partida interrumpida por el servidor" << endl;
+    }
+
+    else if (ganaPuma(p->capturas))
     {
         cout << "\n===  MESA " << p->mesa << ": RESULTADO ===" << endl;
 

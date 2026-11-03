@@ -1,6 +1,7 @@
 #include "torneo.h"
 #include "../partida/partida.h"
 #include <iostream>
+#include <signal.h>
 
 struct DatoJugador
 {
@@ -96,8 +97,10 @@ bool iniciarMesas(AdminMesas &a, int cantidad)
 
     a.cantMesas = cantidad;
     a.ocupadas.assign(cantidad, 0);
+    a.partidasActivas.assign(cantidad, nullptr);
     a.mesasActivas = 0;
     a.maxSimultaneas = 0;
+    a.detener = false;
 
     if (pthread_mutex_init(&a.mutex, nullptr) != 0)
     {
@@ -119,7 +122,7 @@ int solicitarMesa(AdminMesas &a)
 
     int mesa = -1;
 
-    while (mesa == -1)
+    while (mesa == -1 && !a.detener)
     {
         for (int i =0; i< a.cantMesas; i++)
         {
@@ -137,7 +140,7 @@ int solicitarMesa(AdminMesas &a)
             }
         }
 
-        if (mesa== -1)
+        if (mesa== -1 && !a.detener)
         {
             pthread_cond_wait(&a.mesaDisponible, &a.mutex);
         }
@@ -163,6 +166,54 @@ void liberarMesa(AdminMesas &a, int mesa)
 
 }
 
+bool registrarPartidaActiva(AdminMesas &a, int mesa, Partida &p)
+{
+    pthread_mutex_lock(&a.mutex);
+    bool registrado = false;
+
+    if (!a.detener && mesa >= 1 && mesa <= a.cantMesas)
+    {
+        if (a.ocupadas[mesa - 1] == 1 && a.partidasActivas[mesa - 1] == nullptr)
+        {
+            a.partidasActivas[mesa - 1] = &p;
+            registrado = true;
+        }
+    }
+    pthread_mutex_unlock(&a.mutex);
+    return registrado;
+}
+
+void quitarPartidaActiva(AdminMesas &a, int mesa, Partida &p)
+{
+    pthread_mutex_lock(&a.mutex);
+
+    if (mesa >= 1 && mesa <= a.cantMesas)
+    {
+        if (a.partidasActivas[mesa - 1] == &p)
+        {
+            a.partidasActivas[mesa - 1] = nullptr;
+        }
+    }
+
+    pthread_mutex_unlock(&a.mutex);
+}
+
+void detenerMesas(AdminMesas &a)
+{
+    pthread_mutex_lock(&a.mutex);
+    a.detener = true;
+    pthread_cond_broadcast(&a.mesaDisponible);
+
+    for (int i = 0; i< a.cantMesas; i++)
+    {
+        if (a.partidasActivas[i] != nullptr)
+        {
+            detenerPartida(*a.partidasActivas[i]);
+        }
+    }
+    pthread_mutex_unlock(&a.mutex);
+}
+
 void cerrarMesas(AdminMesas &a)
 {
     pthread_cond_destroy(&a.mesaDisponible);
@@ -179,6 +230,10 @@ void* threadParejas(void* dato)
     info->ganador = -1;
 
     int mesa= solicitarMesa(*info->admin);
+    if (mesa == -1)
+    {
+        return nullptr;
+    }
     info->mesaUsada = mesa;
     Partida p;
 
@@ -216,6 +271,14 @@ void* threadParejas(void* dato)
         liberarMesa(*info->admin, mesa);
         return nullptr;
     }
+
+    if (!registrarPartidaActiva(*info->admin, mesa, p))
+    {
+        cerrarPartida(p);
+        liberarMesa(*info->admin, mesa);
+        return nullptr;
+    }
+
     bool resultado = threadsFichas(p);
 
     info->capturasFinales = p.capturas;
@@ -236,10 +299,45 @@ void* threadParejas(void* dato)
         }
     }
 
+    quitarPartidaActiva(*info->admin, mesa, p);
     cerrarPartida(p);
     liberarMesa(*info->admin, mesa);
     info->correcto = resultado;
     
+    return nullptr;
+}
+
+void* threadSenales(void* dato)
+{
+    AdminMesas *admin = (AdminMesas *)dato;
+
+
+    sigset_t senales;
+    sigemptyset(&senales);
+    sigaddset(&senales, SIGINT);
+    sigaddset(&senales, SIGUSR1);
+
+
+    int recibida = 0;
+
+
+    if (sigwait(&senales, &recibida) == 0)
+    {
+        if (recibida == SIGINT)
+        {
+            std::cout << "\nServidor: Ctrl+C recibido"
+                      << std::endl;
+
+
+            std::cout << "Deteniendo partidas..."
+                      << std::endl;
+
+
+            detenerMesas(*admin);
+        }
+    }
+
+
     return nullptr;
 }
 
@@ -272,6 +370,17 @@ bool ejecutarTorneo(int n, int m, char tablero[TAM][TAM], char trono[TAM_TRONO],
     if (!iniciarMesas(admin, m))
     {
         std::cerr << "Error al iniciar mesas" << std::endl;
+        cerrarEmparejamiento(e);
+        return false;
+    }
+
+    pthread_t hiloSenales;
+
+    if (pthread_create(&hiloSenales, nullptr, threadSenales, &admin) != 0)
+    {
+        std::cerr << "Error al crear el thread de señales" << std::endl;
+
+        cerrarMesas(admin);
         cerrarEmparejamiento(e);
         return false;
     }
@@ -332,25 +441,44 @@ bool ejecutarTorneo(int n, int m, char tablero[TAM][TAM], char trono[TAM_TRONO],
         }
     }
 
+    pthread_kill(hiloSenales, SIGUSR1);
+    pthread_join(hiloSenales, nullptr);
+    pthread_mutex_lock(&admin.mutex);
+
+
+    bool interrumpido = admin.detener;
+
+
+    pthread_mutex_unlock(&admin.mutex);
+
+
+    if (interrumpido)
+    {
+        correcto = false;
+
+
+        std::cout << "\nServidor: torneo interrumpido" << std::endl;
+    }
+
     std::cout << "\n========== RESUMEN DEL TORNEO ==========" << std::endl;
 
 
-std::cout << "Jugadores recibidos: " << n << std::endl;
-std::cout << "Parejas formadas: " << total << std::endl;
-std::cout << "Mesas disponibles: " << m << std::endl;
+    std::cout << "Jugadores recibidos: " << n << std::endl;
+    std::cout << "Parejas formadas: " << total << std::endl;
+    std::cout << "Mesas disponibles: " << m << std::endl;
 
-for (int mesa = 1; mesa <= m; mesa++)
-{
-    int partidasMesa = 0;
-
-
-    std::cout << "\nMesa " << mesa << ":" << std::endl;
-
-
-    for (int i = 0; i < creados; i++)
+    for (int mesa = 1; mesa <= m; mesa++)
     {
-        if (datos[i].mesaUsada == mesa)
+        int partidasMesa = 0;
+
+
+        std::cout << "\nMesa " << mesa << ":" << std::endl;
+
+
+        for (int i = 0; i < creados; i++)
         {
+            if (datos[i].mesaUsada == mesa)
+            {
             partidasMesa++;
 
 
@@ -390,42 +518,42 @@ for (int mesa = 1; mesa <= m; mesa++)
 
 
     std::cout << "  Partidas en esta mesa: " << partidasMesa << std::endl;
-}
-
-for (int i = 0; i < creados; i++)
-{
-    if (datos[i].mesaUsada == -1)
-    {
-        std::cout << "Pareja " << i + 1 << " no obtuvo mesa" << std::endl;
     }
-}
+
+    for (int i = 0; i < creados; i++)
+    {
+        if (datos[i].mesaUsada == -1)
+        {
+            std::cout << "Pareja " << i + 1 << " no obtuvo mesa" << std::endl;
+        }
+    }
 
 
-if (creados < total)
-{
-    std::cout << "Parejas sin thread creado: " << total - creados << std::endl;
-}
+    if (creados < total)
+    {
+        std::cout << "Parejas sin thread creado: " << total - creados << std::endl;
+    }
 
 
-std::cout << "\nMaximo de mesas simultaneas: "  << admin.maxSimultaneas << " de " << m << std::endl;
+    std::cout << "\nMaximo de mesas simultaneas: "  << admin.maxSimultaneas << " de " << m << std::endl;
 
 
-std::cout << "Mesas ocupadas al finalizar: " << admin.mesasActivas << std::endl;
+    std::cout << "Mesas ocupadas al finalizar: " << admin.mesasActivas << std::endl;
 
 
-if (admin.maxSimultaneas <= m && admin.mesasActivas == 0)
-{
-    std::cout << "Control de mesas: CORRECTO" << std::endl;
-}
-else
-{
-    std::cout << "Control de mesas: REVISAR" << std::endl;
-}
+    if (admin.maxSimultaneas <= m && admin.mesasActivas == 0)
+    {
+        std::cout << "Control de mesas: CORRECTO" << std::endl;
+    }
+    else
+    {
+        std::cout << "Control de mesas: REVISAR" << std::endl;
+    }
 
 
-std::cout << "========================================" << std::endl;
-std::cout << "                KOMIKAN                 " << std::endl;
-std::cout << "========================================" << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << "                KOMIKAN                 " << std::endl;
+    std::cout << "========================================" << std::endl;
 
     cerrarMesas(admin);
     cerrarEmparejamiento(e);
@@ -437,4 +565,5 @@ std::cout << "========================================" << std::endl;
 
     return correcto;
 }
+
 

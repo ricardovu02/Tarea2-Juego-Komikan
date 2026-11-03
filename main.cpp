@@ -8,6 +8,7 @@
 #include <vector>
 #include "matchmaking/torneo.h"
 #include "matchmaking/torneo.h"
+#include <signal.h>
 
 
 using namespace std;
@@ -237,6 +238,18 @@ int main(int argc, char* argv[])
             return 1;
         }
        }
+    }
+
+    sigset_t senales;
+
+    sigemptyset(&senales);
+    sigaddset(&senales, SIGINT);
+    sigaddset(&senales, SIGUSR1);
+
+    if(pthread_sigmask(SIG_BLOCK, &senales, nullptr) != 0)
+    {
+        cerr << "Error al configurar las señales " << endl;
+        return 1;
     }
 
     if (!ejecutarTorneo(n, m, tablero, trono, retardoMin, retardoMax, static_cast<unsigned int>(semilla)))

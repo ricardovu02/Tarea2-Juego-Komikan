@@ -13,6 +13,7 @@ bool iniciarPartida(Partida &p)
 
     p.capturas = 0;
     p.terminada = false;
+    p.interrumpida = false;
     p.retardoMin = 50;
     p.retardoMax = 300;
     p.semilla = 1;
@@ -99,6 +100,21 @@ void cerrarPartida(Partida &p)
 {
     pthread_cond_destroy(&p.avisoArbitro);
     pthread_mutex_destroy(&p.mutex);
+}
+
+void detenerPartida(Partida &p)
+{
+    pthread_mutex_lock(&p.mutex);
+
+    if (!p.terminada)
+    {
+        p.interrumpida = true;
+        p.terminada = true;
+        p.capturaPendiente = false;
+
+        pthread_cond_broadcast(&p.avisoArbitro);
+    }
+    pthread_mutex_unlock(&p.mutex);
 }
 
 int pausa(Partida &p, unsigned int &estado)
@@ -247,7 +263,7 @@ void* threadPuma(void* dato)
     pausa(*p, estado);
     pthread_mutex_lock(&p->mutex);
 
-    while (p->capturaPendiente)
+    while (p->capturaPendiente && !p->interrumpida)
     {
         pthread_cond_wait(&p->avisoArbitro, &p->mutex);
     }
@@ -287,7 +303,7 @@ void* threadPerro(void* dato)
         pausa(*p, estado);
         pthread_mutex_lock(&p->mutex);
 
-        while(p->capturaPendiente)
+        while(p->capturaPendiente && !p->interrumpida)
         {
             pthread_cond_wait(&p->avisoArbitro, &p->mutex);
         }

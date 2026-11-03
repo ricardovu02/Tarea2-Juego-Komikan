@@ -10,6 +10,7 @@ struct Partida
     char trono[TAM_TRONO];
     int capturas;
     bool terminada;
+    bool interrumpida;
     int retardoMin;
     int retardoMax;
     unsigned int semilla;
@@ -30,6 +31,7 @@ struct Partida
 bool iniciarPartida(Partida &p);
 bool ubicacionFichas(Partida &p);
 void cerrarPartida(Partida &p);
+void detenerPartida(Partida &p);
 void* threadPuma(void* dato);
 bool threadsFichas(Partida &p);
 
