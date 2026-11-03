@@ -248,6 +248,11 @@ void* threadPuma(void* dato)
     pausa(*p, estado);
     pthread_mutex_lock(&p->mutex);
 
+    while (p->capturaPendiente)
+    {
+        pthread_cond_wait(&p->avisoArbitro, &p->mutex);
+    }
+
     if (p->terminada)
     {
         pthread_mutex_unlock(&p->mutex);
@@ -284,6 +289,11 @@ void* threadPerro(void* dato)
         pausa(*p, estado);
         pthread_mutex_lock(&p->mutex);
 
+        while(p->capturaPendiente)
+        {
+            pthread_cond_wait(&p->avisoArbitro, &p->mutex);
+        }
+
         if (p->terminada || p->posPerros[info->id] == -1)
         {
             pthread_mutex_unlock(&p->mutex);
@@ -299,14 +309,44 @@ void* threadPerro(void* dato)
 
 bool threadsFichas(Partida &p)
 {
+    pthread_t arbitro;
     pthread_t hiloPuma;
     pthread_t hilos[cantidad_perros];
     DatoPerro datos[cantidad_perros];
     int creados = 0;
 
+    if(pthread_create(&arbitro, nullptr, threadArbitro, &p) != 0) 
+    {
+        cout << "Error al crear el Arbitro" << endl;
+        return false;
+    }
+    pthread_mutex_lock(&p.mutex);
+
+    while (!p.arbitroListo)
+    {
+        pthread_cond_wait(&p.avisoArbitro, &p.mutex);
+    }
+
+    bool terminoAlInicio =p.terminada;
+
+    pthread_mutex_unlock(&p.mutex);
+
+    if(terminoAlInicio)
+    {
+        pthread_join(arbitro, nullptr);
+        return true;
+    }
+
     if(pthread_create(&hiloPuma, nullptr, threadPuma, &p) != 0) 
     {
         cout << "Error al crear el hilo del Puma" << endl;
+
+        pthread_mutex_lock(&p.mutex);
+        p.terminada = true;
+        pthread_cond_broadcast(&p.avisoArbitro);
+        pthread_mutex_unlock(&p.mutex);
+
+        pthread_join(arbitro, nullptr);
         return false;
     }
 
@@ -321,6 +361,7 @@ bool threadsFichas(Partida &p)
 
             pthread_mutex_lock(&p.mutex);
             p.terminada = true;
+            pthread_cond_broadcast(&p.avisoArbitro);
             pthread_mutex_unlock(&p.mutex);
             break;
         }
@@ -335,6 +376,8 @@ bool threadsFichas(Partida &p)
     {
         pthread_join(hilos[i], nullptr);
     }
+
+    pthread_join(arbitro, nullptr);
 
     return creados == cantidad_perros;
 

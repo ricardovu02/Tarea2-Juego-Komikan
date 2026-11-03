@@ -264,9 +264,6 @@ int main(int argc, char* argv[])
         cerrarPartida(p);
         return 1;
     }
-    cout << endl;
-    cout << "Tabblero inicial: " << endl;
-    mostrarTablero(p.tablero, p.trono);
 
     if (!threadsFichas(p))
     {
@@ -275,9 +272,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    cout << endl;
-    cout << "TABLERO FINAL: " << endl;
-    mostrarTablero(p.tablero, p.trono);
     
 
     cerrarPartida(p);
