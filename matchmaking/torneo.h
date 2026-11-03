@@ -2,6 +2,7 @@
 #define TORNEO_H
 #include <pthread.h>
 #include <vector>
+#include "../juego/juego.h"
 
 struct Pareja
 {
@@ -16,9 +17,35 @@ struct Emparejamiento
     pthread_mutex_t mutex;
 };
 
+struct AdminMesas
+{
+    int cantMesas;
+    std::vector<int> ocupadas;
+    pthread_mutex_t mutex;
+    pthread_cond_t mesaDisponible;
+};
+
+struct DatosPareja
+{
+    Pareja pareja;
+    AdminMesas *admin;
+
+    char tableroInicial[TAM][TAM];
+    char tronoInicial[TAM_TRONO];
+    int retardoMin;
+    int retardoMax;
+    unsigned int semilla;
+    bool correcto;
+};
+
 bool iniciarEmparejamiento(Emparejamiento &e);
 void registrarJugador(Emparejamiento &e, int jugador);
 bool recibirJugadores(Emparejamiento &e, int cantidad);
 void cerrarEmparejamiento(Emparejamiento &e);
+bool iniciarMesas(AdminMesas &a, int cantidad);
+int solicitarMesa(AdminMesas &a);
+void liberarMesa(AdminMesas &a, int mesa);
+void cerrarMesas(AdminMesas &a);
+void* threadParejas(void* dato);
 
 #endif
