@@ -16,6 +16,7 @@ bool iniciarPartida(Partida &p)
     p.retardoMax = 300;
     p.semilla = 1;
     p.posPuma = -1;
+    p.intentos = 0;
     
     for (int i = 0; i < cantidad_perros; i++)
     {
@@ -97,20 +98,175 @@ int pausa(Partida &p, unsigned int &estado)
     return tiempo;
 }
 
+void revisarFin(Partida &p)
+{
+    if (ganaPuma(p.capturas))
+    {
+        p.terminada = true;
+        cout << "Gana el Puma con " << p.capturas << " capturas" << endl;
+    }
+
+    else if (gananPerros(p.tablero, p.trono))
+    {
+        p.terminada = true;
+        cout << "Ganan los Perros: Puma inmovilizado" << endl;
+    }
+    else if (p.intentos >= 400)
+    {
+        p.terminada = true;
+        cout << "Prueba detenida tras 400 intentos, sin ganador" << endl;
+    }
+}
+
+void moverPerro(Partida &p, int id, unsigned int &estado)
+{
+    int origen = p.posPerros[id];
+    int destinos[TAM * TAM + TAM_TRONO];
+    int cantidad = 0;
+    const int total = TAM * TAM + TAM_TRONO;
+
+    for (int destino = 0; destino < total; destino++)
+    {
+        if (movValido(p.tablero, p.trono, origen, destino))
+        {
+            destinos[cantidad] = destino;
+            cantidad++;
+        }
+    }
+    if (cantidad > 0)
+    {
+        int destino = destinos[rand_r(&estado) % cantidad];
+
+        if (movimiento(p.tablero, p.trono, origen, destino))
+        {
+            p.posPerros[id] = destino;
+
+            cout << "Perro " << id + 1 << "; " << origen << " -> " << destino << endl;
+        }
+    }
+}
+
+void moverPuma(Partida &p, unsigned int &estado)
+{
+    int origen = p.posPuma;
+    const int total = TAM * TAM + TAM_TRONO;
+    int destinos[TAM* TAM + TAM_TRONO];
+    int cantidad = 0;
+
+    for (int destino = 0; destino < total; destino++)
+    {
+        char copia[TAM][TAM];
+        char copiaTrono[TAM_TRONO];
+
+        for (int fila = 0; fila < TAM; fila++)
+        {
+            for (int columna = 0; columna < TAM; columna++)
+            {
+                copia[fila][columna] = p.tablero[fila][columna];
+            }
+        }
+
+        for (int i = 0; i < TAM_TRONO; i++)
+        {
+            copiaTrono[i] = p.trono[i];
+        }
+        int pruebaCapturas = p.capturas;
+
+        if (captura(copia, copiaTrono, origen, destino, pruebaCapturas))
+        {
+            destinos[cantidad] = destino;
+            cantidad++;
+        }
+    }
+    if (cantidad > 0)
+    {
+        int destino = destinos[rand_r(&estado) % cantidad];
+
+        if (captura(p.tablero, p.trono, origen, destino, p.capturas))
+        {
+            p.posPuma = destino;
+
+            for (int i = 0; i < cantidad_perros; i++)
+            {
+                int pos = p.posPerros[i];
+
+                if ( pos < 0)
+                {
+                    continue;
+                }
+                char ficha;
+
+                if (pos < TAM * TAM)
+                {
+                    ficha = p.tablero[pos / TAM][pos % TAM];
+
+                }
+                else
+                {
+                    ficha = p.trono[pos - TAM * TAM];
+                }
+
+                if (ficha != 'D')
+                {
+                    p.posPerros[i] = -1;
+
+                    cout << "Puma captura al Perro " << i + 1 << ": " << origen << " -> " << destino << " (capturas: " << p.capturas << ")" << endl;
+
+                    break;
+                }
+            }
+        }
+        return;
+    }
+
+    for (int destino = 0; destino < total; destino++)
+    {
+        if (movValido(p.tablero, p.trono, origen, destino))
+        {
+            destinos[cantidad] = destino;
+            cantidad++;
+        }
+    }
+    if (cantidad >0)
+    {
+        int destino = destinos[rand_r(&estado) % cantidad];
+        if (movimiento(p.tablero, p.trono, origen, destino))
+        {
+            p.posPuma = destino;
+
+            cout << "Puma: " << origen << " -> " << destino << endl;
+        }
+    }
+}
+
 void* threadPuma(void* dato)
 {
     Partida *p = (Partida *)dato;
     unsigned int estado = p->semilla + 100;
-    int tiempo = pausa(*p, estado);
+
+    while (true)
+    {
+    pausa(*p, estado);
     pthread_mutex_lock(&p->mutex);
 
-    cout << "Thread del Puma iniciado" << endl;
-    cout << "Capturas actuales: " << p->capturas << endl;
-    cout <<"Retardo del Puma: " << tiempo << "ms" << endl;
+    if (p->terminada)
+    {
+        pthread_mutex_unlock(&p->mutex);
+        break;
+    }
 
+    p->intentos++;
+
+    if (!gananPerros(p->tablero, p->trono))
+    {
+        moverPuma(*p, estado);
+    }
+    revisarFin(*p);
     pthread_mutex_unlock(&p->mutex);
+    }
     return nullptr;
 }
+
 
 struct DatoPerro
 {
@@ -123,14 +279,22 @@ void* threadPerro(void* dato)
     DatoPerro *info = (DatoPerro *)dato;
     Partida *p = info->partida;
     unsigned int estado = p->semilla + info->id + 1;
-    int tiempo = pausa(*p, estado);
 
-    pthread_mutex_lock(&p->mutex);
+    while (true)
+    {
+        pausa(*p, estado);
+        pthread_mutex_lock(&p->mutex);
 
-    cout << "Perro " << info->id + 1 << " en posicion: " << p->posPerros[info->id] << " -Retardo: " << tiempo << "ms" << endl;
-
-    pthread_mutex_unlock(&p->mutex);
-
+        if (p->terminada || p->posPerros[info->id] == -1)
+        {
+            pthread_mutex_unlock(&p->mutex);
+            break;
+        }
+        p->intentos++;
+        moverPerro(*p, info->id, estado);
+        revisarFin(*p);
+        pthread_mutex_unlock(&p->mutex);
+    }
     return nullptr;
 }
 
@@ -155,6 +319,10 @@ bool threadsFichas(Partida &p)
         if (pthread_create(&hilos[i], nullptr, threadPerro, &datos[i]) != 0)
         {
             cout << "Error al crear el hilo del Perro " << i + 1 << endl;
+
+            pthread_mutex_lock(&p.mutex);
+            p.terminada = true;
+            pthread_mutex_unlock(&p.mutex);
             break;
         }
 

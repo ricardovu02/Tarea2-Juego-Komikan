@@ -13,6 +13,7 @@ struct Partida
     int retardoMin;
     int retardoMax;
     unsigned int semilla;
+    int intentos;
     int posPuma;
     int posPerros[cantidad_perros];
 
