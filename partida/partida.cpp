@@ -1,5 +1,7 @@
 #include "partida.h"
 #include <iostream>
+#include <cstdlib>
+#include <unistd.h>
 
 using namespace std;
 
@@ -10,6 +12,9 @@ bool iniciarPartida(Partida &p)
 
     p.capturas = 0;
     p.terminada = false;
+    p.retardoMin = 50;
+    p.retardoMax = 300;
+    p.semilla = 1;
     p.posPuma = -1;
     
     for (int i = 0; i < cantidad_perros; i++)
@@ -83,13 +88,25 @@ void cerrarPartida(Partida &p)
     pthread_mutex_destroy(&p.mutex);
 }
 
+int pausa(Partida &p, unsigned int &estado)
+{
+    int rango = p.retardoMax - p.retardoMin + 1;
+    int tiempo = p.retardoMin + rand_r(&estado) % rango;
+
+    usleep(tiempo * 1000);
+    return tiempo;
+}
+
 void* threadPuma(void* dato)
 {
     Partida *p = (Partida *)dato;
+    unsigned int estado = p->semilla + 100;
+    int tiempo = pausa(*p, estado);
     pthread_mutex_lock(&p->mutex);
 
     cout << "Thread del Puma iniciado" << endl;
     cout << "Capturas actuales: " << p->capturas << endl;
+    cout <<"Retardo del Puma: " << tiempo << "ms" << endl;
 
     pthread_mutex_unlock(&p->mutex);
     return nullptr;
@@ -105,10 +122,12 @@ void* threadPerro(void* dato)
 {
     DatoPerro *info = (DatoPerro *)dato;
     Partida *p = info->partida;
+    unsigned int estado = p->semilla + info->id + 1;
+    int tiempo = pausa(*p, estado);
 
     pthread_mutex_lock(&p->mutex);
 
-    cout << "Perro " << info->id + 1 << " en posicion: " << p->posPerros[info->id] << endl;
+    cout << "Perro " << info->id + 1 << " en posicion: " << p->posPerros[info->id] << " -Retardo: " << tiempo << "ms" << endl;
 
     pthread_mutex_unlock(&p->mutex);
 

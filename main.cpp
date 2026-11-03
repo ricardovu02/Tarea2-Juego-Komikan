@@ -4,6 +4,7 @@
 #include "juego/juego.h"
 #include "partida/partida.h"
 #include <fstream>
+#include <ctime>
 
 
 using namespace std;
@@ -82,7 +83,9 @@ int main(int argc, char* argv[])
     }
     }
 
-
+    int retardoMin =50;
+    int retardoMax = 300;
+    int semilla = static_cast<int>(time(nullptr));
 
     if (argc == 4)
     {
@@ -95,9 +98,6 @@ int main(int argc, char* argv[])
         }
 
         string parametros;
-        int retardoMin;
-        int retardoMax;
-        int semilla;
 
         if (!(archivo >> parametros >> retardoMin) || parametros!= "retardo_min")
         {
@@ -242,6 +242,11 @@ int main(int argc, char* argv[])
         cerr << "Error al iniciar la partida" << endl;
         return 1;
     }
+
+    p.retardoMin = retardoMin;
+    p.retardoMax = retardoMax;
+    p.semilla = static_cast<unsigned int>(semilla);
+
     for (int fila = 0; fila < TAM; fila++)
     {
         for (int columna = 0; columna < TAM; columna++)
@@ -262,6 +267,14 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "Tabblero inicial: " << endl;
     mostrarTablero(p.tablero, p.trono);
+
+    if (!threadsFichas(p))
+    {
+        cerr << "Error al crear los threads" << endl;
+        cerrarPartida(p);
+        return 1;
+    }
+
     cerrarPartida(p);
     return 0;
 

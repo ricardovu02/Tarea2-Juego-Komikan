@@ -10,6 +10,9 @@ struct Partida
     char trono[TAM_TRONO];
     int capturas;
     bool terminada;
+    int retardoMin;
+    int retardoMax;
+    unsigned int semilla;
     int posPuma;
     int posPerros[cantidad_perros];
 
