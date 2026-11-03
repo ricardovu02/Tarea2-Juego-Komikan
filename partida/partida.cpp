@@ -17,7 +17,6 @@ bool iniciarPartida(Partida &p)
     p.retardoMax = 300;
     p.semilla = 1;
     p.posPuma = -1;
-    p.intentos = 0;
     p.mesa = 1;
     p.arbitroListo = false;
     p.capturaPendiente = false;
@@ -259,7 +258,6 @@ void* threadPuma(void* dato)
         break;
     }
 
-    p->intentos++;
 
     if (!gananPerros(p->tablero, p->trono))
     {
@@ -299,7 +297,6 @@ void* threadPerro(void* dato)
             pthread_mutex_unlock(&p->mutex);
             break;
         }
-        p->intentos++;
         moverPerro(*p, info->id, estado);
         revisarFin(*p);
         pthread_mutex_unlock(&p->mutex);

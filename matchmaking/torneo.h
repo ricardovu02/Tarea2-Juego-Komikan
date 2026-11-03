@@ -21,6 +21,8 @@ struct AdminMesas
 {
     int cantMesas;
     std::vector<int> ocupadas;
+    int mesasActivas;
+    int maxSimultaneas;
     pthread_mutex_t mutex;
     pthread_cond_t mesaDisponible;
 };
@@ -36,6 +38,9 @@ struct DatosPareja
     int retardoMax;
     unsigned int semilla;
     bool correcto;
+    int mesaUsada;
+    int capturasFinales;
+    int ganador;
 };
 
 bool iniciarEmparejamiento(Emparejamiento &e);
@@ -47,5 +52,6 @@ int solicitarMesa(AdminMesas &a);
 void liberarMesa(AdminMesas &a, int mesa);
 void cerrarMesas(AdminMesas &a);
 void* threadParejas(void* dato);
+bool ejecutarTorneo(int n, int m, char tablero[TAM][TAM], char trono[TAM_TRONO], int retardoMin, int retardoMax, unsigned int semilla);
 
 #endif

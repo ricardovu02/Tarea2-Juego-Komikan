@@ -21,7 +21,7 @@ void registrarMov(const Partida &p, const char *ficha, int numero, int origen, i
 
  void revisarFin(Partida &p)
  {
-    if (ganaPuma(p.capturas) || gananPerros(p.tablero, p.trono) || p.intentos >= 400)
+    if (ganaPuma(p.capturas) || gananPerros(p.tablero, p.trono))
     {
         p.terminada = true;
         pthread_cond_broadcast(&p.avisoArbitro);

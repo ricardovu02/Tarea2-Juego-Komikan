@@ -13,7 +13,6 @@ struct Partida
     int retardoMin;
     int retardoMax;
     unsigned int semilla;
-    int intentos;
     int mesa;
     bool arbitroListo;
     bool capturaPendiente;

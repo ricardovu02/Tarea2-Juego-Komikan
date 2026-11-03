@@ -5,6 +5,9 @@
 #include "partida/partida.h"
 #include <fstream>
 #include <ctime>
+#include <vector>
+#include "matchmaking/torneo.h"
+#include "matchmaking/torneo.h"
 
 
 using namespace std;
@@ -236,45 +239,11 @@ int main(int argc, char* argv[])
        }
     }
 
-    Partida p;
-    if (!iniciarPartida(p))
+    if (!ejecutarTorneo(n, m, tablero, trono, retardoMin, retardoMax, static_cast<unsigned int>(semilla)))
     {
-        cerr << "Error al iniciar la partida" << endl;
+        cerr << "Error durante la ejecucion del torneo" << endl;
         return 1;
     }
-
-    p.retardoMin = retardoMin;
-    p.retardoMax = retardoMax;
-    p.semilla = static_cast<unsigned int>(semilla);
-
-    for (int fila = 0; fila < TAM; fila++)
-    {
-        for (int columna = 0; columna < TAM; columna++)
-        {
-            p.tablero[fila][columna] = tablero[fila][columna];
-        }
-    }
-    for (int i = 0; i < TAM_TRONO; i++)
-    {
-        p.trono[i] = trono[i];
-    }
-    if (!ubicacionFichas(p))
-    {
-        cerr << "Error: cantidad de fichas invalida" << endl;
-        cerrarPartida(p);
-        return 1;
-    }
-
-    if (!threadsFichas(p))
-    {
-        cerr << "Error al crear los threads" << endl;
-        cerrarPartida(p);
-        return 1;
-    }
-
-    
-
-    cerrarPartida(p);
     return 0;
 
 }
