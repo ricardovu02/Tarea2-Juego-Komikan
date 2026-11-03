@@ -21,6 +21,6 @@ bool iniciarPartida(Partida &p);
 bool ubicacionFichas(Partida &p);
 void cerrarPartida(Partida &p);
 void* threadPuma(void* dato);
-bool threadsPerros(Partida &p);
+bool threadsFichas(Partida &p);
 
 #endif

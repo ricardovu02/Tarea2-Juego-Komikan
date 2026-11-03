@@ -115,11 +115,18 @@ void* threadPerro(void* dato)
     return nullptr;
 }
 
-bool threadsPerros(Partida &p)
+bool threadsFichas(Partida &p)
 {
+    pthread_t hiloPuma;
     pthread_t hilos[cantidad_perros];
     DatoPerro datos[cantidad_perros];
     int creados = 0;
+
+    if(pthread_create(&hiloPuma, nullptr, threadPuma, &p) != 0) 
+    {
+        cout << "Error al crear el hilo del Puma" << endl;
+        return false;
+    }
 
     for (int i = 0; i < cantidad_perros; i++)
     {
@@ -135,6 +142,8 @@ bool threadsPerros(Partida &p)
         creados++;
 
     }
+
+    pthread_join(hiloPuma, nullptr);
 
     for (int i = 0; i < creados; i++)
     {
