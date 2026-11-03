@@ -236,12 +236,33 @@ int main(int argc, char* argv[])
        }
     }
 
-    
-
-    cout<<endl;
-    cout<< "TABLERO INICIAL: " << endl;
-    
-    mostrarTablero(tablero, trono);
+    Partida p;
+    if (!iniciarPartida(p))
+    {
+        cerr << "Error al iniciar la partida" << endl;
+        return 1;
+    }
+    for (int fila = 0; fila < TAM; fila++)
+    {
+        for (int columna = 0; columna < TAM; columna++)
+        {
+            p.tablero[fila][columna] = tablero[fila][columna];
+        }
+    }
+    for (int i = 0; i < TAM_TRONO; i++)
+    {
+        p.trono[i] = trono[i];
+    }
+    if (!ubicacionFichas(p))
+    {
+        cerr << "Error: cantidad de fichas invalida" << endl;
+        cerrarPartida(p);
+        return 1;
+    }
+    cout << endl;
+    cout << "Tabblero inicial: " << endl;
+    mostrarTablero(p.tablero, p.trono);
+    cerrarPartida(p);
     return 0;
 
 }

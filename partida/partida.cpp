@@ -10,6 +10,12 @@ bool iniciarPartida(Partida &p)
 
     p.capturas = 0;
     p.terminada = false;
+    p.posPuma = -1;
+    
+    for (int i = 0; i < cantidad_perros; i++)
+    {
+        p.posPerros[i] = -1;
+    }
 
     p.posPuma = -1;
 
@@ -24,6 +30,52 @@ bool iniciarPartida(Partida &p)
     }
     return true;
 
+}
+
+bool ubicacionFichas(Partida &p)
+{
+    int pumas = 0;
+    int perros = 0;
+
+    for(int pos = 0; pos < TAM * TAM + TAM_TRONO; pos++)
+    {
+        char ficha;
+
+        if (pos < TAM * TAM)
+        {
+            ficha = p.tablero[pos / TAM][pos % TAM];
+        }
+        else
+        {
+            ficha = p.trono[pos - TAM * TAM];
+
+        }
+        if (ficha == 'P')
+        {
+            p.posPuma = pos;
+            pumas++;
+        }
+        else if (ficha == 'D')
+        {
+            if (perros < cantidad_perros)
+            {
+                p.posPerros[perros] = pos;
+            }
+
+            perros++;
+        }
+    }
+    if (pumas != 1)
+    {
+        cout << "Cantidad de Pumas: " << pumas <<endl;
+        cout << "Numero invalido. Se requiere exactamente 1 Puma." << endl;
+    }
+    if (perros != cantidad_perros)
+    {
+        cout << "Cantidad de Perros: " << perros << endl;
+        cout << "Numero invalido. Se requieren exactamente " << cantidad_perros << " Perros." << endl;
+    }
+    return pumas == 1 && perros == cantidad_perros;
 }
 
 void cerrarPartida(Partida &p)
@@ -43,48 +95,52 @@ void* threadPuma(void* dato)
     return nullptr;
 }
 
-bool ubiFichas(Partida &p)
+struct DatoPerro
 {
-    p.posPuma = -1;
+    Partida *partida;
+    int id;
+};
 
-    for (int i = 0; i< cantidad_perros; i++)
+void* threadPerro(void* dato)
+{
+    DatoPerro *info = (DatoPerro *)dato;
+    Partida *p = info->partida;
+
+    pthread_mutex_lock(&p->mutex);
+
+    cout << "Perro " << info->id + 1 << " en posicion: " << p->posPerros[info->id] << endl;
+
+    pthread_mutex_unlock(&p->mutex);
+
+    return nullptr;
+}
+
+bool threadsPerros(Partida &p)
+{
+    pthread_t hilos[cantidad_perros];
+    DatoPerro datos[cantidad_perros];
+    int creados = 0;
+
+    for (int i = 0; i < cantidad_perros; i++)
     {
-        p.posPerros[i] = -1;
-    }
-    int perros = 0;
-    int total = TAM * TAM + TAM_TRONO;
+        datos[i].partida = &p;
+        datos[i].id = i;
 
-    for (int i = 0; i < total; i++)
+        if (pthread_create(&hilos[i], nullptr, threadPerro, &datos[i]) != 0)
+        {
+            cout << "Error al crear el hilo del Perro " << i + 1 << endl;
+            break;
+        }
+
+        creados++;
+
+    }
+
+    for (int i = 0; i < creados; i++)
     {
-        char ficha;
-
-        if (i < TAM * TAM)
-        {
-            ficha = p.tablero[i / TAM][i % TAM];
-        }
-        else
-        {
-            ficha = p.trono[i - TAM * TAM];
-        }
-
-        if (ficha == 'P')
-        {
-            if (p.posPuma != -1)
-            {
-                return false;
-            }
-            p.posPuma = i;
-        }
-        else if (ficha == 'D')
-        {
-            if(perros >= cantidad_perros)
-            {
-                return false;
-            }
-
-            p.posPerros[perros] = i;
-            perros++;
-        }
+        pthread_join(hilos[i], nullptr);
     }
-    return p.posPuma != -1 && perros == cantidad_perros;
+
+    return creados == cantidad_perros;
+
 }

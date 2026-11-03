@@ -18,8 +18,9 @@ struct Partida
 };
 
 bool iniciarPartida(Partida &p);
+bool ubicacionFichas(Partida &p);
 void cerrarPartida(Partida &p);
 void* threadPuma(void* dato);
-bool ubiFichas(Partida &p);
+bool threadsPerros(Partida &p);
 
 #endif
