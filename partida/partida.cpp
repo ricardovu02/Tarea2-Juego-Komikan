@@ -399,6 +399,7 @@ bool threadsFichas(Partida &p)
 
             pthread_mutex_lock(&p.mutex);
             p.terminada = true;
+            p.capturaPendiente = false;
             pthread_cond_broadcast(&p.avisoArbitro);
             pthread_mutex_unlock(&p.mutex);
             break;
