@@ -228,6 +228,7 @@ void* threadParejas(void* dato)
     info->mesaUsada = -1;
     info->capturasFinales = 0;
     info->ganador = -1;
+    info->abandono = 0;
 
     int mesa= solicitarMesa(*info->admin);
     if (mesa == -1)
@@ -284,10 +285,19 @@ void* threadParejas(void* dato)
     bool resultado = threadsFichas(p);
 
     info->capturasFinales = p.capturas;
+    info->abandono = p.abandono;
 
     if (resultado)
     {
-        if (ganaPuma(p.capturas))
+        if (p.abandono == abandono_puma)
+        {
+            info->ganador = 2;
+        }
+        else if (p.abandono == abandono_perro)
+        {
+            info->ganador = 1;
+        }
+        else if (ganaPuma(p.capturas))
         {
             info->ganador = 1;
         }
@@ -405,6 +415,7 @@ bool ejecutarTorneo(int n, int m, char tablero[TAM][TAM], char trono[TAM_TRONO],
         datos[i].mesaUsada = -1;
         datos[i].capturasFinales = 0;
         datos[i].ganador = -1;
+        datos[i].abandono = 0;
 
         for (int fila = 0; fila < TAM; fila++)
         {
@@ -489,8 +500,15 @@ bool ejecutarTorneo(int n, int m, char tablero[TAM][TAM], char trono[TAM_TRONO],
 
             std::cout << "  Resultado: ";
 
-
-            if (datos[i].ganador == 1)
+            if (datos[i].abandono == abandono_puma)
+            {
+                std::cout << "Ganan los Perros por abandono del jugador " << datos[i].pareja.jugadorPuma;
+            }
+            else if (datos[i].abandono == abandono_perro)
+            {
+                std::cout << "Gana el Puma por abandono del jugador " << datos[i].pareja.jugadorPerros;
+            }
+            else if (datos[i].ganador == 1)
             {
                 std::cout << "Gana el Puma";
             }

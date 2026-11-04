@@ -45,6 +45,7 @@ struct DatosPareja
     int mesaUsada;
     int capturasFinales;
     int ganador;
+    int abandono;
 };
 
 bool iniciarEmparejamiento(Emparejamiento &e);
