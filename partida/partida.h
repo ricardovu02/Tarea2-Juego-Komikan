@@ -36,6 +36,7 @@ bool iniciarPartida(Partida &p);
 bool ubicacionFichas(Partida &p);
 void cerrarPartida(Partida &p);
 void detenerPartida(Partida &p);
+void notificarAbandono(Partida &p, int jugador);
 void* threadPuma(void* dato);
 bool threadsFichas(Partida &p);
 

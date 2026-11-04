@@ -118,6 +118,28 @@ void detenerPartida(Partida &p)
     pthread_mutex_unlock(&p.mutex);
 }
 
+void notificarAbandono(Partida &p, int jugador)
+{
+    if (jugador != abandono_puma && jugador != abandono_perro)
+    {
+        return;
+    }
+    pthread_mutex_lock(&p.mutex);
+
+    if (!p.terminada && !p.interrumpida)
+    {
+        p.abandono = jugador;
+        p.terminada = true;
+        p.capturaPendiente = false;
+
+        pthread_cond_broadcast(&p.avisoArbitro);
+
+    }
+
+    pthread_mutex_unlock(&p.mutex);
+    
+}
+
 int pausa(Partida &p, unsigned int &estado)
 {
     int rango = p.retardoMax - p.retardoMin + 1;
