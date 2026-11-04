@@ -77,9 +77,18 @@ void registrarMov(const Partida &p, const char *ficha, int numero, int origen, i
 
     if (p->interrumpida)
     {
-        cout << "MEsa " << p->mesa << " | Partida interrumpida por el servidor" << endl;
+        cout << "Mesa " << p->mesa << " | Partida interrumpida por el servidor" << endl;
     }
-
+    else if (p->abandono == abandono_puma)
+    {
+        cout << "Mesa " << p->mesa << " | El jugador del Puma abandono la partida" << endl;
+        cout << "Mesa " << p->mesa << " | Ganador: jugador de los Perros por abandono" << endl;
+    }
+    else if (p->abandono == abandono_perro)
+    {
+        cout << "Mesa " << p->mesa << " | El jugador de los Perros abandono la partida" << endl;
+        cout << "Mesa " << p->mesa << " | Ganador: jugador del Puma por abandono" << endl;
+    }
     else if (ganaPuma(p->capturas))
     {
         cout << "\n===  MESA " << p->mesa << ": RESULTADO ===" << endl;
