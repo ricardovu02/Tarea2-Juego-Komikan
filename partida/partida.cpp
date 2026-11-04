@@ -14,6 +14,7 @@ bool iniciarPartida(Partida &p)
     p.capturas = 0;
     p.terminada = false;
     p.interrumpida = false;
+    p.abandono = 0;
     p.retardoMin = 50;
     p.retardoMax = 300;
     p.semilla = 1;

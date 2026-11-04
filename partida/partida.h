@@ -4,6 +4,9 @@
 #include "../juego/juego.h"
 
 const int cantidad_perros = 12;
+const int abandono_puma = 1;
+const int abandono_perro = 2;
+
 struct Partida
 {
     char tablero[TAM][TAM];
@@ -11,6 +14,7 @@ struct Partida
     int capturas;
     bool terminada;
     bool interrumpida;
+    int abandono;
     int retardoMin;
     int retardoMax;
     unsigned int semilla;
