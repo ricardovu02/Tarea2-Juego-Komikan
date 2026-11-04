@@ -33,13 +33,6 @@ bool iniciarPartida(Partida &p)
         p.posPerros[i] = -1;
     }
 
-    p.posPuma = -1;
-
-    for (int i =0; i< cantidad_perros; i++)
-    {
-        p.posPerros[i] = -1;
-    }
-
     if(pthread_mutex_init(&p.mutex, nullptr) != 0)
     {
         return false;

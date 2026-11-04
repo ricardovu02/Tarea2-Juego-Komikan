@@ -34,7 +34,7 @@ void registrarMov(const Partida &p, const char *ficha, int numero, int origen, i
     pthread_mutex_lock(&p->mutex);
     pthread_mutex_lock(&mutexConsola);
 
-    cout << "\n=== MESA" << p->mesa << ": TABLERO INICIAL ===" << endl;
+    cout << "\n=== MESA " << p->mesa << ": TABLERO INICIAL ===" << endl;
 
     mostrarTablero(p->tablero, p->trono);
 
