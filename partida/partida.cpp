@@ -20,6 +20,8 @@ bool iniciarPartida(Partida &p)
     p.semilla = 1;
     p.posPuma = -1;
     p.mesa = 1;
+    p.jugadorPuma = -1;
+    p.jugadorPerro = -1;
     p.arbitroListo = false;
     p.capturaPendiente = false;
     p.perroCapturado = -1;
@@ -137,7 +139,7 @@ void notificarAbandono(Partida &p, int jugador)
     }
 
     pthread_mutex_unlock(&p.mutex);
-    
+
 }
 
 int pausa(Partida &p, unsigned int &estado)

@@ -246,6 +246,8 @@ void* threadParejas(void* dato)
     }
 
     p.mesa = mesa;
+    p.jugadorPuma = info->pareja.jugadorPuma;
+    p.jugadorPerro = info->pareja.jugadorPerros;
     p.retardoMin = info->retardoMin;
     p.retardoMax = info->retardoMax;
     p.semilla = info->semilla + (unsigned int)info->pareja.jugadorPuma;

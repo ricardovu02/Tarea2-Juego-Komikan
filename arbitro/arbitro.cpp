@@ -81,13 +81,13 @@ void registrarMov(const Partida &p, const char *ficha, int numero, int origen, i
     }
     else if (p->abandono == abandono_puma)
     {
-        cout << "Mesa " << p->mesa << " | El jugador del Puma abandono la partida" << endl;
-        cout << "Mesa " << p->mesa << " | Ganador: jugador de los Perros por abandono" << endl;
+        cout << "Mesa " << p->mesa << " | El jugador " << p->jugadorPuma << " (Puma) abandono la partida" << endl;
+        cout << "Mesa " << p->mesa << " | Ganador: jugador " << p->jugadorPerro << " (Perros) por abandono" << endl;
     }
     else if (p->abandono == abandono_perro)
     {
-        cout << "Mesa " << p->mesa << " | El jugador de los Perros abandono la partida" << endl;
-        cout << "Mesa " << p->mesa << " | Ganador: jugador del Puma por abandono" << endl;
+        cout << "Mesa " << p->mesa << " | El jugador " << p->jugadorPerro << " (Perros) abandono la partida" << endl;
+        cout << "Mesa " << p->mesa << " | Ganador: jugador " << p->jugadorPuma << " (Puma) por abandono" << endl;
     }
     else if (ganaPuma(p->capturas))
     {

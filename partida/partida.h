@@ -19,6 +19,8 @@ struct Partida
     int retardoMax;
     unsigned int semilla;
     int mesa;
+    int jugadorPuma;
+    int jugadorPerro;
     bool arbitroListo;
     bool capturaPendiente;
     int perroCapturado;
